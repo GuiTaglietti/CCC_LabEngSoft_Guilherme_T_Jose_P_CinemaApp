@@ -18,10 +18,7 @@ const routes = [
     component: UsuarioView,
     meta: { requiresAuth: true, role: 'usuario' }
   },
-  // Adicione a rota de acesso negado
 { path: '/acesso-negado', component: AcessoNegado },
-
-// Catch-all para 404
 { path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
 ];
 
@@ -34,12 +31,10 @@ router.beforeEach((to, from, next) => {
   const session = useSessionStore();
 
   if (to.meta.requiresAuth) {
-    // Se não tiver token, redireciona para login
     if (!session.token) {
       return next('/');
     }
 
-    // Se o role não for o permitido, redireciona para login
     if (to.meta.role && session.role !== to.meta.role) {
       return next('/acesso-negado');
     }

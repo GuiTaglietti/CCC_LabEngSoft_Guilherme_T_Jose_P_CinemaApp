@@ -1,28 +1,28 @@
 <script setup>
-import { onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useSessionStore } from './store/session'
+import { onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useSessionStore } from "./store/session";
 
-const router = useRouter()
-const session = useSessionStore()
+const router = useRouter();
+const session = useSessionStore();
 
 onMounted(() => {
-  const token = localStorage.getItem('token')
-  const role = localStorage.getItem('role')
+  const token = localStorage.getItem("token");
+  const role = localStorage.getItem("role");
 
   if (token && role) {
-    session.setToken(token)
-    session.setRole(role)
+    session.setToken(token);
+    session.setRole(role);
 
-    if (role === 'gerente') {
-      router.push('/gerente')
-    } else if (role === 'usuario') {
-      router.push('/usuario')
+    if (role === "gerente") {
+      router.push("/gerente");
+    } else if (role === "usuario") {
+      router.push("/usuario");
     }
   } else {
-    router.push('/')
+    router.push("/");
   }
-})
+});
 </script>
 
 <template>
@@ -30,5 +30,4 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* Estilo global básico */
 </style>

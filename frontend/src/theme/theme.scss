@@ -1,0 +1,15 @@
+:root {
+  --color-bg: #0d0d0d;
+  --color-bg-soft: #1a1a1a;
+  --color-primary: #e63946;
+  --color-primary-hover: #d62839;
+  --color-text: #ffffff;
+  --color-input-border: #e63946;
+  --color-card-bg: #1a1a1a;
+}
+
+body {
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
