@@ -1,25 +1,48 @@
-import { createRouter, createWebHistory } from 'vue-router';
-import { useSessionStore } from '../store/session';
-import GerenteView from '../views/GerenteView.vue';
-import UsuarioView from '../views/UsuarioView.vue';
-import LoginForm from '../components/LoginForm.vue';
-import AcessoNegado from '../views/AcessoNegado.vue';
-import NotFound from '../views/NotFound.vue';
+import { createRouter, createWebHistory } from "vue-router";
+import { useSessionStore } from "../store/session";
+import GerenteView from "../views/GerenteView.vue";
+import UsuarioView from "../views/UsuarioView.vue";
+import LoginForm from "../components/LoginForm.vue";
+import AcessoNegado from "../views/AcessoNegado.vue";
+import NotFound from "../views/NotFound.vue";
+import Register from "../components/Register.vue";
+import ForgotPassword from "../components/ForgotPassword.vue";
+import CreateMovie from "../components/CreateMovie.vue";
 
 const routes = [
-  { path: '/', component: LoginForm },
+  { path: "/login", 
+    component: LoginForm 
+  },
   {
-    path: '/gerente',
+    path: "/gerente",
     component: GerenteView,
-    meta: { requiresAuth: true, role: 'gerente' }
+    meta: { requiresAuth: true, role: "gerente" },
   },
   {
-    path: '/usuario',
+    path: "/usuario",
     component: UsuarioView,
-    meta: { requiresAuth: true, role: 'usuario' }
+    meta: { requiresAuth: true, role: "usuario" },
   },
-{ path: '/acesso-negado', component: AcessoNegado },
-{ path: '/:pathMatch(.*)*', name: 'NotFound', component: NotFound },
+  {
+    path: "/register",
+    component: Register,
+  },
+  {
+    path: "/forgot-password",
+    component: ForgotPassword,
+  },
+  {
+    path: "/gerente/cadastrar-filme",
+    component: CreateMovie,
+    meta: { requiresAuth: true, role: "gerente" },
+  },
+  { path: "/acesso-negado", 
+    component: AcessoNegado 
+  },
+  { path: "/:pathMatch(.*)*", 
+    name: "NotFound", 
+    component: NotFound 
+  },
 ];
 
 const router = createRouter({
@@ -32,11 +55,11 @@ router.beforeEach((to, from, next) => {
 
   if (to.meta.requiresAuth) {
     if (!session.token) {
-      return next('/');
+      return next("/login");
     }
 
     if (to.meta.role && session.role !== to.meta.role) {
-      return next('/acesso-negado');
+      return next("/acesso-negado");
     }
   }
 

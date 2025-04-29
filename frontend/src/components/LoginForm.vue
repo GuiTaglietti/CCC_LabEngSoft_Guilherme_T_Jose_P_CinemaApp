@@ -36,7 +36,9 @@
         <el-checkbox v-model="rememberMe" class="remember"
           >Lembrar sessão</el-checkbox
         >
-        <a href="#" class="forgot">Esqueci a senha</a>
+        <a href="#" class="forgot" @click="goToForgotPassword"
+          >Esqueci a senha</a
+        >
       </div>
 
       <el-button type="danger" class="login-button w-100" @click="submit">
@@ -46,7 +48,10 @@
       <p v-if="error" class="login-error mt-3">{{ error }}</p>
 
       <p class="signup-text mt-4">
-        Não tem uma conta? <a href="#" class="signup-link">Cadastrar-se</a>
+        Não tem uma conta?
+        <router-link to="/register" class="signup-link"
+          >Cadastrar-se</router-link
+        >
       </p>
     </el-card>
   </div>
@@ -73,6 +78,10 @@ export default {
         const { access_token } = await login(username.value, password.value);
         sessionStore.setSession(access_token);
 
+        if (rememberMe.value) {
+          localStorage.setItem("access_token", access_token);
+        }
+
         if (sessionStore.role === "gerente") {
           router.push("/gerente");
         } else {
@@ -83,7 +92,18 @@ export default {
       }
     };
 
-    return { username, password, submit, error, rememberMe };
+    const goToForgotPassword = () => {
+      router.push("/forgot-password");
+    };
+
+    return {
+      username,
+      password,
+      submit,
+      error,
+      rememberMe,
+      goToForgotPassword,
+    };
   },
 };
 </script>

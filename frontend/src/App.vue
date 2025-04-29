@@ -20,7 +20,7 @@ onMounted(() => {
       router.push("/usuario");
     }
   } else {
-    router.push("/");
+    router.push("/login");
   }
 });
 </script>

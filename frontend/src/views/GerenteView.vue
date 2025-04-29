@@ -27,42 +27,52 @@
       <el-carousel trigger="click" arrow="always" class="carousel">
         <el-carousel-item>
           <div class="dashboard-card">
-            <i class="bi bi-calendar-plus" style="font-size: 3rem;"></i>
+            <i class="bi bi-calendar-plus" style="font-size: 3rem"></i>
             <h3>Criar Sessões</h3>
             <p>Gerencie as sessões de filmes em nosso cinema.</p>
-            <el-button type="danger" @click="navigateToCreateSession">Criar Sessão</el-button>
+            <el-button type="danger" @click="navigateToCreateSession"
+              >Criar Sessão</el-button
+            >
           </div>
         </el-carousel-item>
         <el-carousel-item>
           <div class="dashboard-card">
-            <i class="bi bi-film" style="font-size: 3rem;"></i>
+            <i class="bi bi-film" style="font-size: 3rem"></i>
             <h3>Cadastrar Filmes</h3>
             <p>Adicione novos filmes à nossa grade.</p>
-            <el-button type="danger" @click="navigateToCreateMovie">Cadastrar Filme</el-button>
+            <el-button type="danger" @click="navigateToCreateMovie"
+              >Cadastrar Filme</el-button
+            >
           </div>
         </el-carousel-item>
         <el-carousel-item>
           <div class="dashboard-card">
-            <i class="bi bi-pencil-square" style="font-size: 3rem;"></i>
+            <i class="bi bi-pencil-square" style="font-size: 3rem"></i>
             <h3>Gerenciar Filmes</h3>
             <p>Edite ou exclua filmes existentes.</p>
-            <el-button type="danger" @click="navigateToManageMovies">Gerenciar Filmes</el-button>
+            <el-button type="danger" @click="navigateToManageMovies"
+              >Gerenciar Filmes</el-button
+            >
           </div>
         </el-carousel-item>
         <el-carousel-item>
           <div class="dashboard-card">
-            <i class="bi bi-bar-chart" style="font-size: 3rem;"></i>
+            <i class="bi bi-bar-chart" style="font-size: 3rem"></i>
             <h3>Relatórios</h3>
             <p>Visualize relatórios de desempenho do cinema.</p>
-            <el-button type="danger" @click="navigateToReports">Visualizar Relatórios</el-button>
+            <el-button type="danger" @click="navigateToReports"
+              >Visualizar Relatórios</el-button
+            >
           </div>
         </el-carousel-item>
         <el-carousel-item>
           <div class="dashboard-card">
-            <i class="bi bi-tools" style="font-size: 3rem;"></i>
+            <i class="bi bi-tools" style="font-size: 3rem"></i>
             <h3>Notificar Manutenção</h3>
             <p>Informe quando um equipamento apresentar problemas.</p>
-            <el-button type="danger" @click="navigateToMaintenanceNotification">Notificar Manutenção</el-button>
+            <el-button type="danger" @click="navigateToMaintenanceNotification"
+              >Notificar Manutenção</el-button
+            >
           </div>
         </el-carousel-item>
       </el-carousel>
@@ -83,7 +93,7 @@ if (session.role !== "gerente") {
   router.push("/");
 }
 
-const currentDate = ref('');
+const currentDate = ref("");
 const salesCount = ref(120);
 const moviesOnDisplay = ref(8);
 const lastMaintenance = ref("25/04/2025");
@@ -98,7 +108,7 @@ const navigateToCreateSession = () => {
 };
 
 const navigateToCreateMovie = () => {
-  router.push("/gerente/cadastrar-filme");
+  router.push({ path: "/gerente/cadastrar-filme" }); // Mesmo aqui
 };
 
 const navigateToManageMovies = () => {
