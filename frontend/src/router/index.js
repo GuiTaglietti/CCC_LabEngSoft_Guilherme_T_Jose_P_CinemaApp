@@ -8,6 +8,7 @@ import NotFound from "../views/NotFound.vue";
 import Register from "../components/Register.vue";
 import ForgotPassword from "../components/ForgotPassword.vue";
 import CreateMovie from "../components/CreateMovie.vue";
+import ManageMovies from "../components/ManageMovies.vue";
 
 const routes = [
   { path: "/login", 
@@ -34,6 +35,11 @@ const routes = [
   {
     path: "/gerente/cadastrar-filme",
     component: CreateMovie,
+    meta: { requiresAuth: true, role: "gerente" },
+  },
+  {
+    path: "/gerente/gerenciar-filmes",
+    component: ManageMovies,
     meta: { requiresAuth: true, role: "gerente" },
   },
   { path: "/acesso-negado", 

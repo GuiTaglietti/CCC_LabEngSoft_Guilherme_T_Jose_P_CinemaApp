@@ -5,10 +5,8 @@ import psycopg2
 from config import Config
 from psycopg2.extras import RealDictCursor
 
-# Estabelece a conexão com o banco de dados e cria um cursor
 def get_db():
-    """Estabelece a conexão com o banco de dados e cria um cursor"""
-    if not hasattr(g, 'db'):  # Se o objeto g não tiver o banco, cria a conexão
+    if not hasattr(g, 'db'):
         g.db = psycopg2.connect(
             dbname=Config.DATABASE_NAME,
             user=Config.DATABASE_USER,
@@ -16,7 +14,7 @@ def get_db():
             host=Config.DATABASE_HOST,
             port=Config.DATABASE_PORT
         )
-        g.cursor = g.db.cursor(cursor_factory=RealDictCursor)  # Para retornar como dicionário
+        g.cursor = g.db.cursor(cursor_factory=RealDictCursor)
     return g.cursor
 
 def create_app():
@@ -28,6 +26,9 @@ def create_app():
 
     from app.routes.auth import auth_bp
     app.register_blueprint(auth_bp, url_prefix="/api/auth")
+
+    from app.routes.movies import movies_bp
+    app.register_blueprint(movies_bp, url_prefix='/api/movies')
 
     return app
 

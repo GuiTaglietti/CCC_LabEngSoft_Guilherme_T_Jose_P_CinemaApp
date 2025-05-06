@@ -108,11 +108,11 @@ const navigateToCreateSession = () => {
 };
 
 const navigateToCreateMovie = () => {
-  router.push({ path: "/gerente/cadastrar-filme" }); // Mesmo aqui
+  router.push({ path: "/gerente/cadastrar-filme" });
 };
 
 const navigateToManageMovies = () => {
-  router.push("/gerente/gerenciar-filmes");
+  router.push({ path: "/gerente/gerenciar-filmes" });
 };
 
 const navigateToReports = () => {

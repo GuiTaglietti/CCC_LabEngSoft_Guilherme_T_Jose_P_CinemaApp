@@ -87,6 +87,7 @@ def delete_movie(movie_id):
 
 @movies_bp.route('/upload', methods=['POST'])
 def upload_banner():
+    print(f"\n\nReq: {request}\n\n")
     if 'banner' not in request.files:
         return jsonify({'error': 'No file part'}), 400
 

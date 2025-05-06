@@ -2,7 +2,7 @@ import axios from "axios";
 import { ElMessage } from "element-plus";
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000",
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:5000/api",
 });
 
 const showSuccess = (message) => {
@@ -33,7 +33,7 @@ export const fetchMovies = async () => {
 
 export const createMovie = async (movieData) => {
   try {
-    const response = await api.post("/movies", movieData);
+    const response = await api.post("/movies/", movieData);
     showSuccess("Filme cadastrado com sucesso!");
     return response.data;
   } catch (error) {
@@ -57,6 +57,24 @@ export const deleteMovie = async (id) => {
   try {
     await api.delete(`/movies/${id}`);
     showSuccess("Filme removido com sucesso!");
+  } catch (error) {
+    showError(error);
+    throw error;
+  }
+};
+
+export const uploadBanner = async (file) => {
+  const formData = new FormData();
+  formData.append("banner", file);
+
+  try {
+    const response = await api.post("movies/upload", formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    showSuccess("Banner enviado com sucesso!");
+    return response.data;
   } catch (error) {
     showError(error);
     throw error;
