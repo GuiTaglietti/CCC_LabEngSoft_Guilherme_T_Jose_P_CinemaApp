@@ -5,6 +5,7 @@ import psycopg2
 import string
 import secrets
 import smtplib
+import os
 from server import get_db
 
 auth_bp = Blueprint("auth", __name__)
@@ -70,8 +71,11 @@ def generate_password(tamanho=12):
     return ''.join(secrets.choice(alfabeto) for _ in range(tamanho))
 
 def send_recover_password_email(destinatario, senha_nova):
-    remetente = "cinemapp_notification@gmail.com"
-    senha_remetente = "senha123"
+    remetente = os.environ.get("MAIL_FROM")
+    senha_remetente = os.environ.get("MAIL_PASSWORD")
+
+    if not remetente or not senha_remetente:
+        raise ValueError("Variáveis de ambiente MAIL_FROM ou MAIL_PASSWORD não estão definidas.")
 
     servidor = smtplib.SMTP('smtp.gmail.com', 587)
     servidor.starttls()
@@ -84,7 +88,6 @@ def send_recover_password_email(destinatario, senha_nova):
     msg['From'] = remetente
     msg['To'] = destinatario
     msg['Subject'] = assunto
-
     msg.attach(MIMEText(corpo, 'plain'))
 
     servidor.sendmail(remetente, destinatario, msg.as_string())

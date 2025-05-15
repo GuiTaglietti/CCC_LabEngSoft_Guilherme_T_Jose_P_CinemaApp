@@ -30,6 +30,12 @@ def create_app():
     from app.routes.movies import movies_bp
     app.register_blueprint(movies_bp, url_prefix='/api/movies')
 
+    from app.routes.sessions import sessions_bp
+    app.register_blueprint(sessions_bp, url_prefix='/api/sessions')
+
+    from app.routes.maintenance import maintenance_bp
+    app.register_blueprint(maintenance_bp, url_prefix='/api/maintenance/messages')
+
     return app
 
 if __name__ == "__main__":
