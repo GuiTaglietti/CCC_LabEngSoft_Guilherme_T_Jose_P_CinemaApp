@@ -2,13 +2,13 @@
   <div class="movies-header">
     <h1 class="movies-title-header">Gestão de Filmes</h1>
     <el-button
-      type="danger"
-      icon="el-icon-arrow-left"
-      @click="goToManagerDashboard"
-      class="back-button-header"
-    >
-      Voltar ao Painel do Gerente
-    </el-button>
+        type="danger"
+        @click="goToManagerDashboard"
+        class="back-button-header"
+      >
+        <i class="bi bi-speedometer2" style="margin-right: 0.5rem"></i>
+        Voltar ao Painel do Gerente
+      </el-button>
   </div>
   <div class="movies-container">
     <div class="movies-card">

@@ -19,8 +19,8 @@
           <p>{{ moviesOnDisplay }} Filmes</p>
         </div>
         <div class="info-card">
-          <h4>Última Manutenção</h4>
-          <p>{{ lastMaintenance }}</p>
+          <h4>Última Requisição de Manutenção</h4>
+          <p>{{ currentDate }}</p>
         </div>
       </div>
 
@@ -85,6 +85,7 @@ import { useRouter } from "vue-router";
 import { useSessionStore } from "../store/session";
 import LogoutButton from "../components/LogoutButton.vue";
 import { ref, onMounted } from "vue";
+import axios from "axios";
 
 const session = useSessionStore();
 const router = useRouter();
@@ -93,9 +94,19 @@ if (session.role !== "gerente") {
   router.push("/");
 }
 
+const fetchMoviesCount = async () => {
+  try {
+    const response = await axios.get("http://localhost:5000/api/movies");
+    moviesOnDisplay.value = response.data.length;
+  } catch (error) {
+    console.error("Erro ao buscar filmes:", error);
+    moviesOnDisplay.value = 0;
+  }
+};
+
 const currentDate = ref("");
 const salesCount = ref(120);
-const moviesOnDisplay = ref(8);
+const moviesOnDisplay = ref(0);
 const lastMaintenance = ref("25/04/2025");
 
 const updateCurrentDate = () => {
@@ -104,7 +115,7 @@ const updateCurrentDate = () => {
 };
 
 const navigateToCreateSession = () => {
-  router.push("/gerente/criar-sessao");
+  router.push("/gerente/gerenciar-sessoes");
 };
 
 const navigateToCreateMovie = () => {
@@ -125,6 +136,7 @@ const navigateToMaintenanceNotification = () => {
 
 onMounted(() => {
   updateCurrentDate();
+  fetchMoviesCount();
 });
 </script>
 

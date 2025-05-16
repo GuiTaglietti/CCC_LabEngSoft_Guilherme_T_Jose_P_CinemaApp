@@ -1,12 +1,8 @@
 <template>
   <div class="movies-header">
     <h1 class="movies-title-header">Cadastro de Filmes</h1>
-    <el-button
-      type="danger"
-      icon="el-icon-arrow-left"
-      @click="goToManagerDashboard"
-      class="back-button-header"
-    >
+    <el-button @click="goToManagerDashboard" class="back-button-header">
+      <i class="bi bi-speedometer2" style="margin-right: 0.5rem"></i>
       Voltar ao Painel do Gerente
     </el-button>
   </div>
@@ -32,11 +28,20 @@
         </el-form-item>
 
         <el-form-item label="Gênero" prop="genre">
-          <el-input
+          <el-select
             v-model="movie.genre"
-            placeholder="Digite o gênero"
-            class="custom-input"
-          />
+            placeholder="Selecione o gênero"
+            class="genre-select"
+            filterable
+            clearable
+          >
+            <el-option
+              v-for="genre in genres"
+              :key="genre"
+              :label="genre"
+              :value="genre"
+            />
+          </el-select>
         </el-form-item>
 
         <el-form-item label="Descrição" prop="description">
@@ -60,29 +65,41 @@
         </el-form-item>
 
         <el-form-item label="Banner" prop="banner">
-          <el-upload
-            class="upload-banner"
-            drag
-            action=""
-            :http-request="handleBannerUpload"
-            :show-file-list="false"
-          >
-            <i class="bi bi-cloud-arrow-up fs-1 upload-icon"></i>
-            <div class="el-upload__text upload-text">
-              Clique ou arraste o banner aqui
-            </div>
-          </el-upload>
-        </el-form-item>
+          <template v-if="!movie.banner_url">
+            <el-upload
+              class="upload-banner"
+              drag
+              action=""
+              :http-request="handleBannerUpload"
+              :show-file-list="false"
+            >
+              <i class="bi bi-cloud-arrow-up fs-1 upload-icon"></i>
+              <div class="el-upload__text upload-text">
+                Clique ou arraste o banner aqui
+              </div>
+            </el-upload>
+          </template>
 
-        <template v-if="movie.banner_url">
-          <div class="text-center mb-3">
-            <img
-              :src="`http://localhost:5000/${movie.banner_url}`"
-              alt="Banner do Filme"
-              class="banner-preview"
-            />
-          </div>
-        </template>
+          <template v-else>
+            <div class="text-center mb-2">
+              <img
+                :src="`http://localhost:5000/${movie.banner_url}`"
+                alt="Banner do Filme"
+                class="banner-preview"
+              />
+            </div>
+            <div class="text-center">
+              <el-button
+                type="danger"
+                plain
+                @click="removeBanner"
+                class="remove-banner-button"
+              >
+                Remover Banner
+              </el-button>
+            </div>
+          </template>
+        </el-form-item>
 
         <el-form-item>
           <el-button type="danger" class="submit-button" @click="submitForm">
@@ -110,22 +127,36 @@ const movie = ref({
   banner_url: "",
 });
 
+const genres = [
+  "Ação",
+  "Animação",
+  "Aventura",
+  "Comédia",
+  "Crime",
+  "Documentário",
+  "Drama",
+  "Família",
+  "Fantasia",
+  "Ficção Científica",
+  "Mistério",
+  "Musical",
+  "Romance",
+  "Suspense",
+  "Terror",
+];
+
 const handleBannerUpload = async ({ file }) => {
   try {
     const { banner_url } = await uploadBanner(file);
     movie.value.banner_url = banner_url;
-  } catch (error) {
-    // O erro já é tratado dentro do service
-  }
+  } catch (error) {}
 };
 
 const submitForm = async () => {
   try {
     await createMovie(movie.value);
     resetForm();
-  } catch (error) {
-    // O erro já é tratado dentro do service
-  }
+  } catch (error) {}
 };
 
 const resetForm = () => {
@@ -137,6 +168,10 @@ const resetForm = () => {
     release_date: "",
     banner_url: "",
   };
+};
+
+const removeBanner = () => {
+  movie.value.banner_url = "";
 };
 
 const goToManagerDashboard = () => {
@@ -258,7 +293,7 @@ const goToManagerDashboard = () => {
   background-color: #1e1e1e;
   color: #fff;
   box-shadow: 0 0 10px rgba(255, 0, 0, 0.2);
-  border-radius: 0; /* Remove arredondamento nas bordas */
+  border-radius: 0;
   position: sticky;
   top: 0;
   z-index: 10;
@@ -282,5 +317,62 @@ const goToManagerDashboard = () => {
 
 .back-button-header:hover {
   background-color: #cc0000;
+}
+
+.remove-banner-button {
+  background-color: transparent;
+  border: 1px solid #ff4d4f;
+  color: #ff4d4f;
+  font-weight: bold;
+  border-radius: 0.5rem;
+  margin-top: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.remove-banner-button:hover {
+  background-color: #ff4d4f;
+  color: white;
+}
+
+:deep(.genre-select .el-input__wrapper) {
+  background-color: #111 !important;
+  color: white !important;
+  border: 1px solid #444 !important;
+  border-radius: 0.5rem;
+  box-shadow: none !important;
+}
+
+:deep(.genre-select .el-input__inner) {
+  color: white !important;
+  background-color: transparent !important;
+}
+
+:deep(.genre-select .el-input__inner::placeholder) {
+  color: #ccc !important;
+}
+
+:deep(.genre-select .el-input__suffix),
+:deep(.genre-select .el-icon),
+:deep(.genre-select .el-input__suffix-inner) {
+  color: white !important;
+}
+
+</style>
+
+<style>
+.el-select-dropdown {
+  background-color: #1a1a1a !important;
+  border: 1px solid #ff4d4f !important;
+  color: white !important;
+}
+
+.el-select-dropdown__item {
+  color: white !important;
+}
+
+.el-select-dropdown__item:hover,
+.el-select-dropdown__item.selected {
+  background-color: #ff4d4f !important;
+  color: white !important;
 }
 </style>

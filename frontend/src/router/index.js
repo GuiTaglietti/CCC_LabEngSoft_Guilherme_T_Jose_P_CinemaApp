@@ -9,6 +9,8 @@ import Register from "../components/Register.vue";
 import ForgotPassword from "../components/ForgotPassword.vue";
 import CreateMovie from "../components/CreateMovie.vue";
 import ManageMovies from "../components/ManageMovies.vue";
+import ManageSessions from "../components/ManageSessions.vue";
+import ManutençãoMensagem from "../components/ManutençãoMensagem.vue";
 
 const routes = [
   { path: "/login", 
@@ -40,6 +42,16 @@ const routes = [
   {
     path: "/gerente/gerenciar-filmes",
     component: ManageMovies,
+    meta: { requiresAuth: true, role: "gerente" },
+  },
+  {
+    path: "/gerente/gerenciar-sessoes",
+    component: ManageSessions,
+    meta: { requiresAuth: true, role: "gerente" },
+  },
+  {
+    path: "/gerente/notificar-manutencao",
+    component: ManutençãoMensagem,
     meta: { requiresAuth: true, role: "gerente" },
   },
   { path: "/acesso-negado", 

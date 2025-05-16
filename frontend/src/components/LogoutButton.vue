@@ -14,7 +14,7 @@ const session = useSessionStore();
 
 const logout = () => {
   session.clearSession();
-  router.push("/");
+  router.push("/login");
 };
 </script>
 
