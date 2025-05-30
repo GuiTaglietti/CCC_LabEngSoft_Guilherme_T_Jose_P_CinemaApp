@@ -7,16 +7,12 @@ const router = useRouter();
 const session = useSessionStore();
 
 onMounted(() => {
-  const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
+  session.loadSessionFromStorage();
 
-  if (token && role) {
-    session.setToken(token);
-    session.setRole(role);
-
-    if (role === "gerente") {
+  if (session.token && session.role) {
+    if (session.role === "gerente") {
       router.push("/gerente");
-    } else if (role === "usuario") {
+    } else if (session.role === "usuario") {
       router.push("/usuario");
     }
   } else {
@@ -29,5 +25,4 @@ onMounted(() => {
   <router-view />
 </template>
 
-<style scoped>
-</style>
+<style scoped></style>

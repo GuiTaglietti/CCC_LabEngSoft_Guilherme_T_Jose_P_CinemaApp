@@ -11,11 +11,10 @@ import CreateMovie from "../components/CreateMovie.vue";
 import ManageMovies from "../components/ManageMovies.vue";
 import ManageSessions from "../components/ManageSessions.vue";
 import ManutençãoMensagem from "../components/ManutençãoMensagem.vue";
+import RelatoriosGerente from "../components/RelatoriosGerente.vue";
 
 const routes = [
-  { path: "/login", 
-    component: LoginForm 
-  },
+  { path: "/login", component: LoginForm },
   {
     path: "/gerente",
     component: GerenteView,
@@ -54,13 +53,8 @@ const routes = [
     component: ManutençãoMensagem,
     meta: { requiresAuth: true, role: "gerente" },
   },
-  { path: "/acesso-negado", 
-    component: AcessoNegado 
-  },
-  { path: "/:pathMatch(.*)*", 
-    name: "NotFound", 
-    component: NotFound 
-  },
+  { path: "/acesso-negado", component: AcessoNegado },
+  { path: "/:pathMatch(.*)*", name: "NotFound", component: NotFound },
 ];
 
 const router = createRouter({
