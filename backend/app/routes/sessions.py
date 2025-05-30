@@ -54,14 +54,34 @@ def create_session():
     cursor.execute("""
         INSERT INTO sessions (movie_id, room, start_time, end_time)
         VALUES (%s, %s, %s, %s)
+        RETURNING id
     """, (
         data['movie_id'],
         data['room'],
         data['start_time'],
         data['end_time']
     ))
+
+    session_id = cursor.fetchone()['id']
+
+    seats = []
+    for row in ['A', 'B']:
+        for num in range(1, 11):
+            seat_number = f"{row}{num}"
+            seats.append((session_id, seat_number))
+
+    cursor.executemany(
+        "INSERT INTO seats (session_id, seat_number) VALUES (%s, %s)",
+        seats
+    )
+
     cursor.connection.commit()
-    return jsonify({"message": "Sessão criada com sucesso!"}), 201
+
+    return jsonify({
+        "message": "Sessão criada com sucesso e 20 assentos adicionados!",
+        "session_id": session_id
+    }), 201
+
 
 
 

@@ -78,10 +78,6 @@ export default {
         const { access_token } = await login(username.value, password.value);
         sessionStore.setSession(access_token);
 
-        if (rememberMe.value) {
-          localStorage.setItem("access_token", access_token);
-        }
-
         if (sessionStore.role === "gerente") {
           router.push("/gerente");
         } else {

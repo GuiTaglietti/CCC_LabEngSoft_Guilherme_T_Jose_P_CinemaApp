@@ -36,6 +36,9 @@ def create_app():
     from app.routes.maintenance import maintenance_bp
     app.register_blueprint(maintenance_bp, url_prefix='/api/maintenance/messages')
 
+    from app.routes.tickets import tickets_bp
+    app.register_blueprint(tickets_bp, url_prefix='/api/tickets')
+
     return app
 
 if __name__ == "__main__":

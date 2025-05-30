@@ -59,9 +59,9 @@
           <div class="dashboard-card">
             <i class="bi bi-bar-chart" style="font-size: 3rem"></i>
             <h3>Relatórios</h3>
-            <p>Visualize relatórios de desempenho do cinema.</p>
-            <el-button type="danger" @click="navigateToReports"
-              >Visualizar Relatórios</el-button
+            <p>Gere relatórios de desempenho do cinema.</p>
+            <el-button type="danger" @click="openDialog"
+              >Gerar Relatórios</el-button
             >
           </div>
         </el-carousel-item>
@@ -75,17 +75,81 @@
             >
           </div>
         </el-carousel-item>
+        <el-carousel-item>
+          <div class="dashboard-card">
+            <i class="bi bi-eye" style="font-size: 3rem"></i>
+            <h3>Visualizar Assentos</h3>
+            <p>Veja os assentos vendidos para cada sessão.</p>
+            <el-button type="danger" @click="openSessionsDialog">
+              Ver Sessões
+            </el-button>
+          </div>
+        </el-carousel-item>
       </el-carousel>
+
+      <el-dialog
+        v-model="dialogVisible"
+        width="50%"
+        :close-on-click-modal="false"
+        class="relatorio-dialog"
+      >
+        <RelatoriosGerente />
+        <template #footer>
+          <el-button @click="dialogVisible = false">Fechar</el-button>
+        </template>
+      </el-dialog>
+
+      <el-dialog
+        v-model="sessionSeatsDialogVisible"
+        title="Mapa de Assentos"
+        width="60%"
+      >
+        <template #default>
+          <el-select
+            v-model="selectedSessionId"
+            placeholder="Selecione uma sessão"
+            @change="fetchSeatsForSession"
+          >
+            <el-option
+              v-for="session in sessions"
+              :key="session.id"
+              :label="`${session.movie_title} - Sala ${
+                session.room
+              } - ${formatDate(session.start_time)}`"
+              :value="session.id"
+            />
+          </el-select>
+
+          <div v-if="sessionSeats.length" class="seats-wrapper mt-4">
+            <div class="seats-grid">
+              <el-button
+                v-for="seat in sessionSeats"
+                :key="seat.id"
+                :type="seat.is_occupied ? 'danger' : 'success'"
+                :disabled="true"
+                class="seat-button"
+              >
+                {{ seat.seat_number }}
+              </el-button>
+            </div>
+          </div>
+
+          <div v-else class="text-center mt-4 text-light">
+            Nenhum assento disponível.
+          </div>
+        </template>
+      </el-dialog>
     </div>
   </div>
 </template>
 
 <script setup>
-import { useRouter } from "vue-router";
-import { useSessionStore } from "../store/session";
-import LogoutButton from "../components/LogoutButton.vue";
 import { ref, onMounted } from "vue";
 import axios from "axios";
+import LogoutButton from "../components/LogoutButton.vue";
+import { useRouter } from "vue-router";
+import { useSessionStore } from "../store/session";
+import RelatoriosGerente from "../components/RelatoriosGerente.vue";
 
 const session = useSessionStore();
 const router = useRouter();
@@ -94,24 +158,23 @@ if (session.role !== "gerente") {
   router.push("/");
 }
 
-const fetchMoviesCount = async () => {
-  try {
-    const response = await axios.get("http://localhost:5000/api/movies");
-    moviesOnDisplay.value = response.data.length;
-  } catch (error) {
-    console.error("Erro ao buscar filmes:", error);
-    moviesOnDisplay.value = 0;
-  }
-};
-
 const currentDate = ref("");
-const salesCount = ref(120);
+const salesCount = ref(0);
 const moviesOnDisplay = ref(0);
-const lastMaintenance = ref("25/04/2025");
+const lastMaintenance = ref("");
+const sessions = ref([]);
+const sessionSeatsDialogVisible = ref(false);
+const selectedSessionId = ref(null);
+const sessionSeats = ref([]);
+const dialogVisible = ref(false);
 
 const updateCurrentDate = () => {
   const date = new Date();
   currentDate.value = date.toLocaleDateString("pt-BR");
+};
+
+const openDialog = () => {
+  dialogVisible.value = true;
 };
 
 const navigateToCreateSession = () => {
@@ -126,17 +189,68 @@ const navigateToManageMovies = () => {
   router.push({ path: "/gerente/gerenciar-filmes" });
 };
 
-const navigateToReports = () => {
-  router.push("/gerente/relatorios");
-};
-
 const navigateToMaintenanceNotification = () => {
   router.push("/gerente/notificar-manutencao");
+};
+
+const fetchMoviesCount = async () => {
+  try {
+    const response = await axios.get("http://localhost:5000/api/movies");
+    moviesOnDisplay.value = response.data.length;
+  } catch (err) {
+    console.error("Erro ao buscar filmes:", err);
+  }
+};
+
+const fetchSalesCount = async () => {
+  try {
+    const response = await axios.get("http://localhost:5000/api/tickets/total");
+    salesCount.value = response.data.total;
+  } catch (err) {
+    console.error("Erro ao buscar total de vendas:", err);
+  }
+};
+
+const fetchSessions = async () => {
+  try {
+    const response = await axios.get("http://localhost:5000/api/sessions");
+    sessions.value = response.data;
+  } catch (err) {
+    console.error("Erro ao buscar sessões:", err);
+  }
+};
+
+const openSessionsDialog = async () => {
+  await fetchSessions();
+  sessionSeatsDialogVisible.value = true;
+};
+
+const fetchSeatsForSession = async (sessionId) => {
+  try {
+    const response = await axios.get(
+      `http://localhost:5000/api/tickets/seats/${sessionId}`
+    );
+    sessionSeats.value = response.data;
+  } catch (err) {
+    console.error("Erro ao buscar assentos:", err);
+  }
+};
+
+const formatDate = (str) => {
+  const d = new Date(str);
+  return d.toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 };
 
 onMounted(() => {
   updateCurrentDate();
   fetchMoviesCount();
+  fetchSalesCount();
 });
 </script>
 
@@ -247,5 +361,33 @@ onMounted(() => {
 
 .el-button:hover {
   box-shadow: 0 0 20px red;
+}
+
+:deep(.el-dialog) {
+  background-color: #0e0e0e !important;
+  border: 2px solid #ff0000;
+  border-radius: 1rem;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+  color: white;
+}
+
+.seats-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+.seats-grid {
+  display: grid;
+  grid-template-columns: repeat(10, 60px);
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.seat-button {
+  font-weight: bold;
+  width: 60px;
+  height: 40px;
+  text-align: center;
+  padding: 0;
 }
 </style>

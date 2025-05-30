@@ -32,3 +32,24 @@ export const recoverPassword = async (email) => {
     throw new Error("Erro ao recuperar senha");
   }
 };
+
+export const getUserInfo = async (username) => {
+  try {
+    const response = await axios.get(`http://localhost:5000/api/auth/users/me?username=${username}`);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao buscar dados do usuário:", error);
+    throw new Error("Erro ao buscar dados do usuário");
+  }
+};
+
+export const updateUserInfo = async (updatedData) => {
+  try {
+    const response = await axios.put("http://localhost:5000/api/auth/users/update", updatedData);
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao atualizar dados do usuário:", error);
+    throw new Error("Erro ao atualizar dados do usuário");
+  }
+};
+
