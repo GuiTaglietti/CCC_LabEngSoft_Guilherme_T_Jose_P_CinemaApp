@@ -1,14 +1,12 @@
-from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
-from app.util.util import verify_password, hash_password
-import psycopg2
 import string
 import secrets
-import smtplib
-import os
 from server import get_db
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
+from flask import Blueprint, request, jsonify, current_app
+from flask_jwt_extended import create_access_token, decode_token
+from app.util.util import verify_password, hash_password, _mailgun_send
+from server import get_db
+from datetime import timedelta
+import os
 
 auth_bp = Blueprint("auth", __name__)
 
@@ -113,47 +111,87 @@ def generate_password(tamanho=12):
     alfabeto = string.ascii_letters + string.digits + string.punctuation
     return ''.join(secrets.choice(alfabeto) for _ in range(tamanho))
 
-def send_recover_password_email(destinatario, senha_nova):
-    remetente = os.environ.get("MAIL_FROM")
-    senha_remetente = os.environ.get("MAIL_PASSWORD")
 
-    if not remetente or not senha_remetente:
-        raise ValueError("Variáveis de ambiente MAIL_FROM ou MAIL_PASSWORD não estão definidas.")
-
-    servidor = smtplib.SMTP('smtp.gmail.com', 587)
-    servidor.starttls()
-    servidor.login(remetente, senha_remetente)
-
-    assunto = "Recuperação de Senha"
-    corpo = f"Sua nova senha é: {senha_nova}"
-
-    msg = MIMEMultipart()
-    msg['From'] = remetente
-    msg['To'] = destinatario
-    msg['Subject'] = assunto
-    msg.attach(MIMEText(corpo, 'plain'))
-
-    servidor.sendmail(remetente, destinatario, msg.as_string())
-    servidor.quit()
-
-@auth_bp.route("/recoverpassword", methods=["POST"])
-def recover_password():
+@auth_bp.route("/send-reset-link", methods=["POST"])
+def send_reset_link():
     data = request.json
     email = data.get("email")
+    if not email:
+        return jsonify({"msg": "E-mail é obrigatório."}), 400
 
     cursor = get_db()
-    cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
+    cursor.execute("SELECT id, username FROM users WHERE email = %s", (email,))
     user = cursor.fetchone()
-
     if not user:
-        return jsonify({"msg": "E-mail não encontrado!"}), 404
+        return jsonify({"msg": "E-mail não encontrado."}), 404
 
-    nova_senha = generate_password()
+    expires = timedelta(minutes=15)
+    reset_token = create_access_token(
+        identity={"user_id": user["id"], "username": user["username"]},
+        expires_delta=expires,
+    )
 
-    hashed_password = hash_password(nova_senha)
-    cursor.execute("UPDATE users SET password = %s WHERE email = %s", (hashed_password, email))
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:5173")
+    reset_link = f"{frontend_url}/reset-password?token={reset_token}"
+
+    subject = "Cinema: Redefinição de Senha"
+    text = (
+        f"Olá, {user['username']},\n\n"
+        "Você solicitou a redefinição de senha. Clique no link abaixo para criar uma nova senha:\n\n"
+        f"{reset_link}\n\n"
+        "Este link expira em 15 minutos.\n\n"
+        "Se você não solicitou esta ação, desconsidere este e-mail.\n\n"
+        "Atenciosamente,\nEquipe Cinema"
+    )
+
+    sucesso = _mailgun_send(subject, text)
+    if not sucesso:
+        return jsonify({"msg": "Falha ao enviar e-mail de redefinição."}), 500
+
+    return jsonify({"msg": "E-mail de redefinição enviado com sucesso."}), 200
+
+
+@auth_bp.route("/reset-password", methods=["POST"])
+def reset_password():
+    data = request.json
+    token = data.get("token")
+    new_password = data.get("new_password")
+
+    if not token or not new_password:
+        return jsonify({"msg": "Token e nova senha são obrigatórios."}), 400
+
+    try:
+        decoded = decode_token(token)
+    except:
+        return jsonify({"msg": "Token inválido ou expirado."}), 400
+
+    identity = decoded.get("sub") or decoded.get("identity")
+    user_id = identity.get("user_id")
+    hashed = hash_password(new_password)
+    cursor = get_db()
+    cursor.execute("UPDATE users SET password = %s WHERE id = %s", (hashed, user_id))
     cursor.connection.commit()
 
-    send_recover_password_email(email, nova_senha)
+    return jsonify({"msg": "Senha alterada com sucesso."}), 200
 
-    return jsonify({"msg": "Senha recuperada com sucesso! Verifique seu e-mail."}), 200
+@auth_bp.route("/send-maintenance", methods=["POST"])
+def send_maintenance():
+    data = request.json
+    sender_name = data.get("sender")
+    content = data.get("content")
+
+    if not sender_name or not content:
+        return jsonify({"msg": "Remetente e conteúdo são obrigatórios."}), 400
+
+    subject = "Cinema: Notificação de Manutenção"
+    text = (
+        f"Remetente: {sender_name}\n\n"
+        f"Mensagem de manutenção:\n{content}\n\n"
+        "Atenciosamente,\nEquipe Cinema"
+    )
+
+    sucesso = _mailgun_send(subject, text)
+    if not sucesso:
+        return jsonify({"msg": "Falha ao enviar e-mail de manutenção."}), 500
+
+    return jsonify({"msg": "E-mail de manutenção enviado com sucesso."}), 200

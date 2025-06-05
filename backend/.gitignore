@@ -50,3 +50,8 @@ coverage.xml
 # System files
 Thumbs.db
 ehthumbs.db
+
+# Imgs
+*.jpeg
+*.jpg
+*.png

@@ -25,11 +25,24 @@ export const register = async (userData) => {
 
 export const recoverPassword = async (email) => {
   try {
-    const response = await axios.post("http://localhost:5000/api/auth/recoverpassword", { email });
+    const response = await axios.post("http://localhost:5000/api/auth/send-reset-link", { email });
     return response.data;
   } catch (error) {
-    console.error("Erro ao recuperar senha:", error);
-    throw new Error("Erro ao recuperar senha");
+    console.error("Erro ao solicitar link de recuperação de senha:", error);
+    throw new Error("Erro ao solicitar link de recuperação de senha");
+  }
+};
+
+export const resetPassword = async (token, newPassword) => {
+  try {
+    const response = await axios.post("http://localhost:5000/api/auth/reset-password", {
+      token,
+      new_password: newPassword,
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Erro ao redefinir senha:", error);
+    throw error.response?.data?.msg || new Error("Erro ao redefinir senha");
   }
 };
 
@@ -52,4 +65,3 @@ export const updateUserInfo = async (updatedData) => {
     throw new Error("Erro ao atualizar dados do usuário");
   }
 };
-

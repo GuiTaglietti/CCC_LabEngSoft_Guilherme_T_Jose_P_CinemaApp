@@ -22,6 +22,7 @@
           v-model="message"
           placeholder="Ex: O projetor da sala 3 está desligando sozinho."
           rows="6"
+          class="maintenance-textarea"
         />
         <el-button
           type="danger"
@@ -34,6 +35,25 @@
         </el-button>
       </div>
     </div>
+
+    <!-- Caixa de diálogo de confirmação -->
+    <el-dialog
+      v-model="dialogVisible"
+      title="Notificação Enviada"
+      :close-on-click-modal="false"
+      :show-close="false"
+      class="success-dialog"
+    >
+      <span>
+        A solicitação de manutenção foi enviada com sucesso! Verifique seu e-mail
+        para mais detalhes.
+      </span>
+      <template #footer>
+        <el-button type="primary" class="dialog-button" @click="closeDialog">
+          OK
+        </el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -53,20 +73,30 @@ if (session.role !== "gerente") {
 
 const message = ref("");
 const loading = ref(false);
+const dialogVisible = ref(false);
 
 const sendMessage = async () => {
-  loading.value = true;
+  if (!message.value.trim()) {
+    ElMessage.warning("Por favor, descreva o problema antes de enviar.");
+    return;
+  }
 
+  loading.value = true;
   try {
-    await sendMaintenanceMessage(session.name, message.value);
-    ElMessage.success("Mensagem enviada com sucesso!");
+    await sendMaintenanceMessage(session.username, message.value);
+    dialogVisible.value = true;
     message.value = "";
   } catch (error) {
+    console.error("Erro ao enviar mensagem de manutenção:", error);
     ElMessage.error("Erro ao enviar mensagem. Tente novamente.");
-    console.error("Erro:", error);
   } finally {
     loading.value = false;
   }
+};
+
+const closeDialog = () => {
+  dialogVisible.value = false;
+  goToManagerDashboard();
 };
 
 const goToManagerDashboard = () => {
@@ -144,6 +174,18 @@ body {
   word-break: break-word;
 }
 
+.maintenance-textarea :deep(.el-textarea__inner) {
+  background-color: #2a2a2a;
+  color: white;
+  border: 1px solid #444;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+}
+
+.maintenance-textarea :deep(.el-textarea__inner::placeholder) {
+  color: #bbb;
+}
+
 .el-button {
   background-color: #ff0000;
   border: none;
@@ -162,23 +204,51 @@ body {
   box-shadow: 0 0 20px red;
 }
 
-.mt-2 {
-  margin-top: 0.5rem;
+.mb-2 {
+  margin-bottom: 0.5rem;
 }
 
 .mt-4 {
   margin-top: 1rem;
 }
 
-:deep(.el-textarea__inner) {
-  background-color: #2a2a2a;
-  color: white;
-  border: 1px solid #444;
-  font-size: 1rem;
-  border-radius: 0.5rem;
+/* Diálogo de sucesso */
+.success-dialog .el-dialog__header {
+  background-color: #1a1a1a;
+  color: #fff;
+  border-bottom: 2px solid #ff0000;
 }
 
-:deep(.el-textarea__inner::placeholder) {
-  color: #bbb;
+.success-dialog .el-dialog__body {
+  background-color: #1a1a1a;
+  color: #fff;
+  font-size: 1rem;
+  padding: 20px;
+}
+
+.success-dialog .dialog-button {
+  background-color: #ff0000;
+  color: white;
+  font-weight: bold;
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  transition: box-shadow 0.3s ease;
+  box-shadow: 0 0 10px red;
+}
+
+.success-dialog .dialog-button:hover {
+  box-shadow: 0 0 20px red;
+}
+
+.back-button-header {
+  background-color: transparent;
+  color: #ff0000;
+  border: 1px solid #ff0000;
+  font-weight: bold;
+}
+
+.back-button-header:hover {
+  background-color: #ff0000;
+  color: #fff;
 }
 </style>

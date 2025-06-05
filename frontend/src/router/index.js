@@ -11,7 +11,7 @@ import CreateMovie from "../components/CreateMovie.vue";
 import ManageMovies from "../components/ManageMovies.vue";
 import ManageSessions from "../components/ManageSessions.vue";
 import ManutençãoMensagem from "../components/ManutençãoMensagem.vue";
-import RelatoriosGerente from "../components/RelatoriosGerente.vue";
+import ResetPassword from "../views/ResetPassword.vue";
 
 const routes = [
   { path: "/login", component: LoginForm },
@@ -52,6 +52,10 @@ const routes = [
     path: "/gerente/notificar-manutencao",
     component: ManutençãoMensagem,
     meta: { requiresAuth: true, role: "gerente" },
+  },
+  {
+    path: "/reset-password",
+    component: ResetPassword,
   },
   { path: "/acesso-negado", component: AcessoNegado },
   { path: "/:pathMatch(.*)*", name: "NotFound", component: NotFound },
