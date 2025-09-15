@@ -16,6 +16,24 @@ services:
       timeout: 5s
       retries: 20
 
+  # Serviço que aplica o schema sempre que o stack sobe (idempotente)
+  db-init:
+    image: postgres:15
+    container_name: cinemaapp-db-init
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      PGPASSWORD: cinema_pass
+    volumes:
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command: >
+      bash -lc "
+      until pg_isready -h db -p 5432 -U cinema_user -d cinema_db; do sleep 1; done;
+      psql -h db -U cinema_user -d cinema_db -f /docker-entrypoint-initdb.d/init.sql
+      "
+    restart: "no"
+
   backend:
     image: cinemaapp/backend:dev
     build:
@@ -27,9 +45,10 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      db-init:
+        condition: service_completed_successfully
     ports:
       - "5000:5000"
-    # Para hot-reload durante dev, descomente:
     # volumes:
     #   - ./backend/app:/app/app
 
