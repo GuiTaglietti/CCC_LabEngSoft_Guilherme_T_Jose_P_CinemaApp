@@ -1,0 +1,48 @@
+services:
+  db:
+    image: postgres:15
+    container_name: cinemaapp-db
+    environment:
+      POSTGRES_DB: cinema_db
+      POSTGRES_USER: cinema_user
+      POSTGRES_PASSWORD: cinema_pass
+    ports:
+      - "55432:5432"
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cinema_user -d cinema_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    image: cinemaapp/backend:dev
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: cinemaapp-backend
+    env_file:
+      - ./backend/.env
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      - "5055:5000"
+    # Para hot-reload durante dev, descomente:
+    # volumes:
+    #   - ./backend/app:/app/app
+
+  frontend:
+    image: cinemaapp/frontend:dev
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: cinemaapp-frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:

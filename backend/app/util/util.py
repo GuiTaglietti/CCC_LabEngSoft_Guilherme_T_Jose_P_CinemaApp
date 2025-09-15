@@ -11,10 +11,10 @@ def verify_password(hashed_password, password):
     return check_password_hash(hashed_password, password)
 
 def _mailgun_send(subject: str, text: str) -> bool:
-    domain = os.getenv("MAILGUN_DOMAIN")
-    api_key = os.getenv("MAILGUN_API_KEY")
-    receiver = os.getenv("MAILGUN_RECEIVER")
-    sender   = os.getenv("MAILGUN_SENDER")
+    domain = os.getenv("MAILGUN_DOMAIN", '')
+    api_key = os.getenv("MAILGUN_API_KEY", '')
+    receiver = os.getenv("MAILGUN_RECEIVER", '')
+    sender   = os.getenv("MAILGUN_SENDER", '')
 
     if not all([domain, api_key, receiver, sender]):
         current_app.logger.error("Mailgun: algumas variáveis de ambiente não estão definidas.")
